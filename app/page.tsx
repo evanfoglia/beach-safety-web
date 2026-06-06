@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import BeachSearch from "@/components/BeachSearch";
 import BeachCard from "@/components/BeachCard";
 import type { BeachData } from "@/lib/beach-api";
-import { Anchor } from "lucide-react";
+import Link from "next/link";
+import { Anchor, Sparkles } from "lucide-react";
 
 const STORAGE_KEY = "beach-safety-favorites";
 
@@ -92,6 +93,15 @@ export default function Page() {
           <p className="text-slate-400 text-sm">
             Real-time safety data for beaches worldwide
           </p>
+          <div className="pt-2">
+            <Link
+              href="/pricing"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-cyan-300 hover:text-cyan-200 bg-cyan-400/10 hover:bg-cyan-400/20 border border-cyan-400/20 rounded-full px-3 py-1 transition-colors"
+            >
+              <Sparkles size={12} />
+              BeachCast Pro — $5/mo
+            </Link>
+          </div>
         </header>
 
         {/* Search */}

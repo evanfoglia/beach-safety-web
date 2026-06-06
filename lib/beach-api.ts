@@ -248,18 +248,18 @@ async function fetchWeather(lat: number, lon: number): Promise<{
   waterTempC: number;
   uvIndex: number;
 }> {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=air_temperature,wind_speed_10m,wind_direction_10m,uv_index&daily=water_temperature_max&timezone=auto`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,wind_direction_10m,uv_index&daily=uv_index_max&timezone=auto`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Weather API error");
   const data = await res.json();
   const current = data.current ?? {};
   const daily = data.daily ?? {};
   return {
-    airTempC: current.air_temperature ?? 0,
-    windSpeedMs: current.wind_speed_10m ?? 0,
+    airTempC: current.temperature_2m ?? 0,
+    windSpeedMs: (current.wind_speed_10m ?? 0) / 3.6, // API returns km/h, convert to m/s
     windDirectionDeg: current.wind_direction_10m ?? 0,
-    waterTempC: daily.water_temperature_max?.[0] ?? 20,
-    uvIndex: current.uv_index ?? 0,
+    waterTempC: 20, // Water temp not available in weather API
+    uvIndex: current.uv_index ?? daily.uv_index_max?.[0] ?? 0,
   };
 }
 

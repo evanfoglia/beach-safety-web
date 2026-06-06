@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import FavoriteChip from "./FavoriteChip";
 
 interface BeachSearchProps {
@@ -42,10 +42,21 @@ export default function BeachSearch({
           className="w-full pl-12 pr-4 py-4 bg-slate-800/80 border border-slate-700/80 rounded-2xl text-slate-100 placeholder-slate-500 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500/60 focus:border-cyan-500/60 transition-all font-sans"
           disabled={loading}
         />
-        {loading && (
+        {loading ? (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+            <Loader2 size={20} className="text-cyan-400 animate-spin" />
           </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              if (value.trim()) onSearch(value.trim());
+            }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition-colors"
+            aria-label="Search"
+          >
+            <Search size={20} />
+          </button>
         )}
       </div>
 
