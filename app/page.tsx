@@ -945,9 +945,9 @@ function DailyForecastRow({ daily, tz }: { daily: DailyForecastDay[]; tz?: strin
               <div
                 key={d.date}
                 className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-lg border
-                  border-white/10 bg-white/[0.02]
-                  ${isToday ? "ring-1 ring-teal-400/40" : ""}
+                  flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-lg border
+                  border-white/10 bg-white/[0.02] relative
+                  ${isToday ? "before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-full before:bg-amber-300/80" : ""}
                 `}
               >
                 <div className="flex-shrink-0 w-12 text-left">
@@ -1016,9 +1016,9 @@ function DailyForecastRow({ daily, tz }: { daily: DailyForecastDay[]; tz?: strin
                   key={d.date}
                   className={`
                     relative flex flex-col items-stretch gap-1.5
-                    px-3 py-4 rounded-lg border
+                    pl-4 pr-3 py-4 rounded-lg border
                     border-white/10 bg-white/[0.02]
-                    ${isToday ? "ring-1 ring-teal-400/40" : ""}
+                    ${isToday ? "before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-full before:bg-amber-300/80" : ""}
                   `}
                 >
                   <div className="flex items-baseline justify-between gap-1 min-h-[14px]">
