@@ -87,17 +87,22 @@ export default function Page() {
       {/* Fixed left sidebar — vertical icon rail (hidden on mobile, drawer instead) */}
       <Sidebar />
 
-      {/* Mobile-only top bar with search — appears above the hero on small screens */}
-      <div className="md:hidden absolute top-0 left-0 right-0 z-30 px-5 pt-5 pb-3 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none">
-        <div className="pointer-events-auto">
-          <SearchBar
-            value={query}
-            onChange={setQuery}
-            onSearch={searchBeach}
-            loading={loading}
-            compact
-          />
-        </div>
+      {/* Mobile-only fixed top bar — CSS-gated (md:hidden) so it renders immediately
+         on small viewports without waiting for JS state hydration. */}
+      <div
+        className="md:hidden fixed top-0 left-0 right-0 z-[100] px-5 pt-5 pb-3"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(0,0,0,0.4) 70%, transparent)",
+        }}
+      >
+        <SearchBar
+          value={query}
+          onChange={setQuery}
+          onSearch={searchBeach}
+          loading={loading}
+          compact
+        />
       </div>
 
       {/* Hero — full-bleed background image */}
@@ -346,6 +351,19 @@ function SearchBar({
         <span className="text-[10px] md:text-xs font-mono uppercase tracking-[0.3em] text-teal-300 wave-pulse font-semibold shrink-0">
           fetching…
         </span>
+      )}
+      {!loading && value.trim() && (
+        <button
+          onClick={() => onSearch(value.trim())}
+          className={`shrink-0 rounded border border-teal-400/40 hover:border-teal-300/80 text-teal-300 hover:text-teal-200 font-mono uppercase tracking-[0.25em] transition-colors ${
+            compact
+              ? "text-[10px] px-2 py-1"
+              : "text-[10px] md:text-xs px-2 py-1 md:hidden"
+          }`}
+          type="button"
+        >
+          Search →
+        </button>
       )}
     </div>
   );
