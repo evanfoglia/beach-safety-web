@@ -35,7 +35,8 @@ export default function Page() {
   const [beachData, setBeachData] = useState<BeachData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [source, setSource] = useState<"mcp" | "js" | null>(null);
+  // No data source indicator — web app always uses pure-JS path (Open-Meteo + NOAA).
+  // The beach-safety MCP server lives at projects/beach-safety-mcp as a separate product.
   const [favorites, setFavorites] = useState<string[]>([]);
   const [now, setNow] = useState<Date | null>(null);
   // Beach image gen deferred (cost / hosting concerns). lib/image-gen.ts is dormant;
@@ -55,14 +56,12 @@ export default function Page() {
     setLoading(true);
     setError(null);
     setBeachData(null);
-    setSource(null);
     try {
       const res = await fetch(`/api/beach?beach=${encodeURIComponent(beachName)}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setBeachData(data);
-      setSource(data._source === "mcp" ? "mcp" : "js");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to fetch beach data");
     } finally {
@@ -122,8 +121,7 @@ export default function Page() {
                 </p>
                 {beachData && (
                   <p className="text-sm text-slate-100/90 font-mono tracking-wide">
-                    {rating.detail} · rip risk {beachData.rip_current_risk} · UV {beachData.uv_index ?? "—"}{" "}
-                    <SourceChip source={source} />
+                    {rating.detail} · rip risk {beachData.rip_current_risk} · UV {beachData.uv_index ?? "—"}
                   </p>
                 )}
                 {!beachData && (
@@ -286,22 +284,7 @@ function ConditionBadge({ label, tone }: { label: string; tone: "good" | "fair" 
   );
 }
 
-function SourceChip({ source }: { source: "mcp" | "js" | null }) {
-  if (!source) return null;
-  return (
-    <span
-      className={`ml-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono uppercase tracking-wider border font-semibold ${
-        source === "mcp"
-          ? "border-teal-400/60 text-teal-300 bg-teal-400/10"
-          : "border-slate-400/60 text-slate-200 bg-slate-400/10"
-      }`}
-      title={source === "mcp" ? "Data from live MCP server" : "Data from JS fallback"}
-    >
-      <span className={`w-2 h-2 rounded-full ${source === "mcp" ? "bg-teal-300" : "bg-slate-200"}`} />
-      {source}
-    </span>
-  );
-}
+
 
 function SearchBar({
   value,
