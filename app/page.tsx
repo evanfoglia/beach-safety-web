@@ -224,9 +224,9 @@ function HeroImage() {
   return (
     <div className="absolute inset-0">
       <img
-        src="/hero-hi-ce41e969.jpg"
+        src="/hero-hi-wide.jpg"
         alt=""
-        className="w-full h-full object-cover object-[center_30%] wave-pulse"
+        className="w-full h-full object-cover object-center wave-pulse"
       />
       <div className="absolute inset-0 hero-overlay" />
     </div>
