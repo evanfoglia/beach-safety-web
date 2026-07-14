@@ -22,9 +22,9 @@
 :root {
   --background: #050b14;
   --foreground: #f8fafc;
-  --hero-overlay-top: rgba(5, 11, 20, 0.55);
-  --hero-overlay-bottom: rgba(5, 11, 20, 0.85);
-  --hero-side: rgba(5, 11, 20, 0.45);
+  --hero-overlay-top: rgba(5, 11, 20, 0.75);
+  --hero-overlay-bottom: rgba(5, 11, 20, 0.92);
+  --hero-side: rgba(5, 11, 20, 0.55);
 }
 
 * {

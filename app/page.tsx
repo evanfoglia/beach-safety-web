@@ -94,11 +94,11 @@ export default function Page() {
         <section className="absolute inset-0 z-10 flex flex-col justify-end pb-12 px-8 md:px-16 lg:px-24 max-w-5xl pointer-events-none">
           <div className="pointer-events-auto space-y-8">
             {/* Wordmark */}
-            <div className="space-y-2">
-              <p className="text-xs tracking-[0.4em] text-teal-300 uppercase font-mono">
+            <div className="space-y-3">
+              <p className="text-sm tracking-[0.35em] text-teal-300 uppercase font-mono font-semibold">
                 Weather and beach report
               </p>
-              <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] text-white tracking-tight">
+              <h1 className="font-serif text-6xl md:text-8xl lg:text-9xl font-black leading-[0.95] text-white tracking-tight drop-shadow-lg">
                 {beachShortName}
               </h1>
             </div>
@@ -106,18 +106,18 @@ export default function Page() {
             {/* Condition rating + summary */}
             <div className="flex flex-wrap items-end gap-6 md:gap-10">
               <ConditionBadge label={rating.label} tone={rating.tone} />
-              <div className="space-y-1 max-w-md">
-                <p className="text-lg md:text-xl text-slate-100 font-light italic">
+              <div className="space-y-2 max-w-md">
+                <p className="text-xl md:text-2xl text-slate-100 font-light italic">
                   {summarizeConditions(beachData)}
                 </p>
                 {beachData && (
-                  <p className="text-xs text-slate-300/80 font-mono tracking-wide">
+                  <p className="text-sm text-slate-100/90 font-mono tracking-wide">
                     {rating.detail} · rip risk {beachData.rip_current_risk} · UV {beachData.uv_index ?? "—"}{" "}
                     <SourceChip source={source} />
                   </p>
                 )}
                 {!beachData && (
-                  <p className="text-xs text-slate-300/70 font-mono tracking-wide">
+                  <p className="text-sm text-slate-100/80 font-mono tracking-wide">
                     {rating.detail}
                   </p>
                 )}
@@ -153,17 +153,17 @@ function Sidebar() {
     { key: "search", label: "Search" },
   ];
   return (
-    <aside className="hidden md:flex flex-col items-center justify-between w-16 lg:w-20 shrink-0 bg-slate-950/80 backdrop-blur-md border-r border-white/5 py-8 z-20">
+    <aside className="hidden md:flex flex-col items-center justify-between w-16 lg:w-20 shrink-0 bg-slate-950/95 backdrop-blur-md border-r border-white/10 py-8 z-20">
       <div className="flex flex-col items-center gap-6">
         {items.map((it) => (
           <button
             key={it.key}
-            className={`group flex flex-col items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest transition-colors ${
-              it.active ? "text-teal-300" : "text-slate-500 hover:text-slate-200"
+            className={`group flex flex-col items-center gap-1.5 text-xs font-mono uppercase tracking-wider transition-colors ${
+              it.active ? "text-teal-300" : "text-slate-400 hover:text-slate-100"
             }`}
             title={it.label}
           >
-            <span className={`w-9 h-9 rounded-full flex items-center justify-center border transition-colors ${
+            <span className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors ${
               it.active
                 ? "border-teal-400/60 bg-teal-400/10"
                 : "border-white/10 group-hover:border-white/30"
@@ -173,7 +173,7 @@ function Sidebar() {
           </button>
         ))}
       </div>
-      <div className="text-[9px] font-mono text-slate-600 tracking-widest uppercase">
+      <div className="text-[10px] font-mono text-slate-500 tracking-widest uppercase">
         v1
       </div>
     </aside>
@@ -247,13 +247,13 @@ function TopBar({
   return (
     <div className="absolute top-0 left-0 right-0 z-10 px-8 md:px-16 lg:px-24 pt-8 flex items-start justify-between pointer-events-none">
       <div className="space-y-0.5 pointer-events-auto">
-        <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-slate-300/70">
+        <p className="text-xs font-mono uppercase tracking-[0.3em] text-slate-100 font-semibold">
           {beachLabel}
         </p>
-        <p className="text-sm font-mono text-slate-200">{date}</p>
+        <p className="text-base font-mono text-slate-100">{date}</p>
       </div>
       {lat != null && lon != null && (
-        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-slate-300/70 pointer-events-auto">
+        <p className="text-xs font-mono uppercase tracking-[0.25em] text-slate-100 font-semibold pointer-events-auto">
           {lat.toFixed(3)}°N · {Math.abs(lon).toFixed(3)}°W
         </p>
       )}
@@ -263,15 +263,15 @@ function TopBar({
 
 function ConditionBadge({ label, tone }: { label: string; tone: "good" | "fair" | "caution" | "danger" }) {
   const colorMap = {
-    good: "text-emerald-300 border-emerald-400/40",
-    fair: "text-amber-300 border-amber-400/40",
-    caution: "text-amber-200 border-amber-300/40",
-    danger: "text-rose-300 border-rose-400/40",
+    good: "text-emerald-300 border-emerald-400/60",
+    fair: "text-amber-300 border-amber-400/60",
+    caution: "text-amber-200 border-amber-300/60",
+    danger: "text-rose-300 border-rose-400/60",
   } as const;
   return (
-    <div className={`inline-flex flex-col items-start gap-1 border-l-2 pl-4 ${colorMap[tone]}`}>
-      <span className="text-[10px] font-mono uppercase tracking-[0.4em] opacity-70">Condition</span>
-      <span className="font-serif text-4xl md:text-5xl font-black tracking-tight">{label}</span>
+    <div className={`inline-flex flex-col items-start gap-1.5 border-l-4 pl-5 ${colorMap[tone]}`}>
+      <span className="text-xs font-mono uppercase tracking-[0.3em] font-semibold">Condition</span>
+      <span className="font-serif text-5xl md:text-6xl font-black tracking-tight drop-shadow-md">{label}</span>
     </div>
   );
 }
@@ -280,14 +280,14 @@ function SourceChip({ source }: { source: "mcp" | "js" | null }) {
   if (!source) return null;
   return (
     <span
-      className={`ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono uppercase tracking-widest border ${
+      className={`ml-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono uppercase tracking-wider border font-semibold ${
         source === "mcp"
-          ? "border-teal-400/40 text-teal-300 bg-teal-400/5"
-          : "border-slate-400/40 text-slate-300 bg-slate-400/5"
+          ? "border-teal-400/60 text-teal-300 bg-teal-400/10"
+          : "border-slate-400/60 text-slate-200 bg-slate-400/10"
       }`}
       title={source === "mcp" ? "Data from live MCP server" : "Data from JS fallback"}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${source === "mcp" ? "bg-teal-300" : "bg-slate-300"}`} />
+      <span className={`w-2 h-2 rounded-full ${source === "mcp" ? "bg-teal-300" : "bg-slate-200"}`} />
       {source}
     </span>
   );
@@ -324,12 +324,12 @@ function SearchBar({
           if (e.key === "Enter" && value.trim()) onSearch(value.trim());
         }}
         placeholder='Try "Juno Pier", "Bondi Beach", "Waikiki"…'
-        className="ghost-input text-xl md:text-2xl font-serif italic text-white"
+        className="ghost-input text-2xl md:text-3xl font-serif italic text-white placeholder:text-slate-300/60"
         disabled={loading}
       />
       {loading && (
-        <span className="text-[10px] font-mono uppercase tracking-[0.4em] text-teal-300 wave-pulse">
-          fetching
+        <span className="text-xs font-mono uppercase tracking-[0.3em] text-teal-300 wave-pulse font-semibold">
+          fetching…
         </span>
       )}
     </div>
