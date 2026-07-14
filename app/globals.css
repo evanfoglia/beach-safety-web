@@ -3,27 +3,111 @@
 @theme inline {
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), monospace;
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --color-ocean-950: #050b14;
   --color-ocean-900: #0a1e2d;
   --color-ocean-800: #0f2744;
-  --color-teal-accent: #22d3ee;
-  --color-cyan-accent: #06b6d4;
+  --color-ocean-700: #143458;
+  --color-teal-300: #5eead4;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-rose-400: #fb7185;
+  --color-rose-500: #f43f5e;
+  --color-emerald-400: #34d399;
 }
 
 :root {
-  --background: #0f172a;
-  --foreground: #e2e8f0;
+  --background: #050b14;
+  --foreground: #f8fafc;
+  --hero-overlay-top: rgba(5, 11, 20, 0.55);
+  --hero-overlay-bottom: rgba(5, 11, 20, 0.85);
+  --hero-side: rgba(5, 11, 20, 0.45);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
   background: var(--background);
   color: var(--foreground);
+  overscroll-behavior-y: none;
+}
+
+body {
+  font-feature-settings: "ss01", "cv11";
 }
 
 ::selection {
-  background: #22d3ee;
-  color: #0f172a;
+  background: #2dd4bf;
+  color: #050b14;
+}
+
+/* Editorial-style scrollbar in the sidebar */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Hide native input appearance for the ghosted search */
+.ghost-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+}
+
+.ghost-input::placeholder {
+  color: rgba(248, 250, 252, 0.55);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+/* Hero gradient overlays — top dark for legibility, bottom for data dock */
+.hero-overlay {
+  background:
+    linear-gradient(180deg, var(--hero-overlay-top) 0%, transparent 35%),
+    linear-gradient(0deg, var(--hero-overlay-bottom) 0%, transparent 45%),
+    linear-gradient(90deg, var(--hero-side) 0%, transparent 30%);
+}
+
+/* Magazine-style numbered cards */
+.mag-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  isolation: isolate;
+}
+
+.mag-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(5, 11, 20, 0.85) 100%);
+  z-index: 1;
+}
+
+.mag-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Soft fade-out on horizontal scroll edges */
+.scroll-fade-x {
+  mask-image: linear-gradient(90deg, transparent 0, black 32px, black calc(100% - 32px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, black 32px, black calc(100% - 32px), transparent 100%);
+}
+
+/* Subtle wave shimmer animation for the empty state */
+@keyframes wave-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.wave-pulse {
+  animation: wave-pulse 4s ease-in-out infinite;
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -12,9 +12,15 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "500", "700", "900"],
+});
+
 export const metadata: Metadata = {
-  title: "Beach Conditions",
-  description: "Real-time beach safety conditions for beaches worldwide",
+  title: "Weather and beach report",
+  description: "Real-time surf, weather, and safety conditions for beaches worldwide.",
 };
 
 export default function RootLayout({
@@ -25,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased bg-slate-900 text-slate-100 font-sans`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${playfair.variable} h-full antialiased bg-slate-950 text-slate-50 font-sans`}
       >
         {children}
       </body>
