@@ -3,6 +3,8 @@
  * Uses free public APIs: Nominatim (geocoding), Open-Meteo Marine & Weather.
  */
 
+import { geocodeCache } from "./response-cache";
+
 export interface BeachData {
   beach_name: string;
   latitude: number;
@@ -342,6 +344,13 @@ function uvRisk(uv: number): string {
 // the requester's browser language via accept-language, which on a Chinese-locale
 // phone returns Chinese place names. Override with accept-language: en.
 async function geocode(beachName: string): Promise<{ lat: number; lon: number; displayName: string; timezone: string } | null> {
+  const key = beachName.trim().toLowerCase();
+  const hit = geocodeCache.get(key) as { lat: number; lon: number; displayName: string; timezone: string } | undefined;
+  if (hit !== undefined) return hit;
+  // Marker for "we already looked this up and got nothing". Otherwise an
+  // unknown beach would re-hit Nominatim on every request.
+  const miss = geocodeCache.get(key + "::miss");
+  if (miss !== undefined) return null;
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(beachName)}&format=json&limit=1&addressdetails=1&extratags=1`;
   const res = await fetch(url, {
     headers: {
@@ -349,12 +358,18 @@ async function geocode(beachName: string): Promise<{ lat: number; lon: number; d
       "accept-language": "en",
     },
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    // Don't cache failure — could be a transient upstream hiccup.
+    return null;
+  }
   const data = await res.json();
-  if (!data || data.length === 0) return null;
+  if (!data || data.length === 0) {
+    geocodeCache.set(key + "::miss", { empty: true }, 30 * 60_000); // 30 min negative cache
+    return null;
+  }
   const lon = parseFloat(data[0].lon);
   const lat = parseFloat(data[0].lat);
-  return {
+  const result = {
     lat,
     lon,
     displayName: data[0].display_name,
@@ -362,6 +377,8 @@ async function geocode(beachName: string): Promise<{ lat: number; lon: number; d
     // Fall back to a longitude-based heuristic for US beaches.
     timezone: data[0].extratags?.timezone ?? inferTimezoneFromLon(lon, lat),
   };
+  geocodeCache.set(key, result);
+  return result;
 }
 
 // Approximate IANA timezone from coordinates. Covers US + Atlantic Canada;
