@@ -83,12 +83,25 @@ export default function Page() {
     : "WEST SHORE";
 
   return (
-    <div className="relative min-h-screen flex">
-      {/* Fixed left sidebar — vertical icon rail */}
+    <div className="relative min-h-screen md:flex">
+      {/* Fixed left sidebar — vertical icon rail (hidden on mobile, drawer instead) */}
       <Sidebar />
 
+      {/* Mobile-only top bar with search — appears above the hero on small screens */}
+      <div className="md:hidden absolute top-0 left-0 right-0 z-30 px-5 pt-5 pb-3 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none">
+        <div className="pointer-events-auto">
+          <SearchBar
+            value={query}
+            onChange={setQuery}
+            onSearch={searchBeach}
+            loading={loading}
+            compact
+          />
+        </div>
+      </div>
+
       {/* Hero — full-bleed background image */}
-      <main className="flex-1 relative min-h-screen overflow-hidden">
+      <main className="flex-1 relative min-h-screen md:overflow-hidden">
         <HeroImage />
 
         {/* Top bar — wordmark + date + location */}
@@ -100,45 +113,47 @@ export default function Page() {
         />
 
         {/* Hero content — search + condition rating + summary */}
-        <section className="absolute inset-0 z-10 flex flex-col justify-end pb-12 px-8 md:px-16 lg:px-24 max-w-5xl pointer-events-none">
-          <div className="pointer-events-auto space-y-8">
+        <section className="absolute inset-0 z-10 flex flex-col justify-end pb-12 px-5 md:px-16 lg:px-24 max-w-5xl pointer-events-none">
+          <div className="pointer-events-auto space-y-6 md:space-y-8">
             {/* Wordmark */}
-            <div className="space-y-3">
-              <p className="text-sm tracking-[0.35em] text-teal-300 uppercase font-mono font-semibold">
+            <div className="space-y-2 md:space-y-3">
+              <p className="text-xs md:text-sm tracking-[0.35em] text-teal-300 uppercase font-mono font-semibold">
                 Weather and beach report
               </p>
-              <h1 className="font-serif text-6xl md:text-8xl lg:text-9xl font-black leading-[0.95] text-white tracking-tight drop-shadow-lg">
+              <h1 className="font-serif text-5xl md:text-8xl lg:text-9xl font-black leading-[0.95] text-white tracking-tight drop-shadow-lg">
                 {beachShortName}
               </h1>
             </div>
 
             {/* Condition rating + summary */}
-            <div className="flex flex-wrap items-end gap-6 md:gap-10">
+            <div className="flex flex-wrap items-end gap-5 md:gap-10">
               <ConditionBadge label={rating.label} tone={rating.tone} />
               <div className="space-y-2 max-w-md">
-                <p className="text-xl md:text-2xl text-slate-100 font-light italic">
+                <p className="text-base md:text-2xl text-slate-100 font-light italic">
                   {summarizeConditions(beachData)}
                 </p>
                 {beachData && (
-                  <p className="text-sm text-slate-100/90 font-mono tracking-wide">
+                  <p className="text-xs md:text-sm text-slate-100/90 font-mono tracking-wide">
                     {rating.detail} · rip risk {beachData.rip_current_risk} · UV {beachData.uv_index ?? "—"}
                   </p>
                 )}
                 {!beachData && (
-                  <p className="text-sm text-slate-100/80 font-mono tracking-wide">
+                  <p className="text-xs md:text-sm text-slate-100/80 font-mono tracking-wide">
                     {rating.detail}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Search bar */}
-            <SearchBar
-              value={query}
-              onChange={setQuery}
-              onSearch={searchBeach}
-              loading={loading}
-            />
+            {/* Search bar — desktop only (mobile has it in the top bar) */}
+            <div className="hidden md:block">
+              <SearchBar
+                value={query}
+                onChange={setQuery}
+                onSearch={searchBeach}
+                loading={loading}
+              />
+            </div>
 
             {error && (
               <p className="text-sm text-rose-300 font-mono">
@@ -253,12 +268,12 @@ function TopBar({
   lon: number | null;
 }) {
   return (
-    <div className="absolute top-0 left-0 right-0 z-10 px-8 md:px-16 lg:px-24 pt-8 flex items-start justify-between pointer-events-none">
+    <div className="absolute top-0 left-0 right-0 z-10 px-5 md:px-16 lg:px-24 pt-20 md:pt-8 flex items-start justify-between pointer-events-none">
       <div className="space-y-0.5 pointer-events-auto">
         <p className="text-xs font-mono uppercase tracking-[0.3em] text-slate-100 font-semibold">
           {beachLabel}
         </p>
-        <p className="text-base font-mono text-slate-100">{date}</p>
+        <p className="text-sm md:text-base font-mono text-slate-100">{date}</p>
       </div>
       {lat != null && lon != null && (
         <p className="text-xs font-mono uppercase tracking-[0.25em] text-slate-100 font-semibold pointer-events-auto">
@@ -291,20 +306,22 @@ function SearchBar({
   onChange,
   onSearch,
   loading,
+  compact = false,
 }: {
   value: string;
   onChange: (v: string) => void;
   onSearch: (v: string) => void;
   loading: boolean;
+  compact?: boolean;
 }) {
   return (
-    <div className="border-b border-white/20 pb-3 flex items-center gap-3">
+    <div className={`border-b border-white/20 pb-2 md:pb-3 flex items-center gap-3 ${compact ? "" : "md:border-b"}`}>
       <svg
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.4"
-        className="w-5 h-5 text-slate-300/80"
+        className="w-4 h-4 md:w-5 md:h-5 text-slate-300/80 shrink-0"
       >
         <circle cx="11" cy="11" r="7" />
         <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
@@ -317,11 +334,16 @@ function SearchBar({
           if (e.key === "Enter" && value.trim()) onSearch(value.trim());
         }}
         placeholder='Try "Juno Pier", "Bondi Beach", "Waikiki"…'
-        className="ghost-input text-2xl md:text-3xl font-serif italic text-white placeholder:text-slate-300/60"
+        className={`ghost-input font-serif italic text-white placeholder:text-slate-300/60 w-full ${
+          compact ? "text-base" : "text-2xl md:text-3xl"
+        }`}
         disabled={loading}
+        style={{ fontSize: "16px" }}
+        autoComplete="off"
+        enterKeyHint="search"
       />
       {loading && (
-        <span className="text-xs font-mono uppercase tracking-[0.3em] text-teal-300 wave-pulse font-semibold">
+        <span className="text-[10px] md:text-xs font-mono uppercase tracking-[0.3em] text-teal-300 wave-pulse font-semibold shrink-0">
           fetching…
         </span>
       )}
