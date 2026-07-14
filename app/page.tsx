@@ -912,10 +912,6 @@ function HourlyTimeline({
 function DailyForecastRow({ daily, tz }: { daily: DailyForecastDay[]; tz?: string }) {
   if (daily.length === 0) return null;
 
-  // Find best day by rating score (first day wins ties so today wins if it ties)
-  let bestScore = -1;
-  for (const d of daily) if (d.bestRating.score > bestScore) bestScore = d.bestRating.score;
-
   return (
     <div className="space-y-4">
       <div className="flex items-end justify-between gap-4 border-b border-white/10 pb-3">
@@ -945,15 +941,12 @@ function DailyForecastRow({ daily, tz }: { daily: DailyForecastDay[]; tz?: strin
         <div className="md:hidden flex flex-col gap-2">
           {daily.map((d, i) => {
             const isToday = i === 0;
-            const isBestDay = d.bestRating.score === bestScore && d.bestRating.score > 0;
             return (
               <div
                 key={d.date}
                 className={`
                   flex items-center gap-3 px-3 py-2.5 rounded-lg border
-                  ${isBestDay
-                    ? "border-emerald-400/40 bg-emerald-400/[0.04]"
-                    : "border-white/10 bg-white/[0.02]"}
+                  border-white/10 bg-white/[0.02]
                   ${isToday ? "ring-1 ring-teal-400/40" : ""}
                 `}
               >
@@ -1018,16 +1011,13 @@ function DailyForecastRow({ daily, tz }: { daily: DailyForecastDay[]; tz?: strin
           <div className="grid grid-cols-7 gap-3">
             {daily.map((d, i) => {
               const isToday = i === 0;
-              const isBestDay = d.bestRating.score === bestScore && d.bestRating.score > 0;
               return (
                 <div
                   key={d.date}
                   className={`
                     relative flex flex-col items-stretch gap-1.5
                     px-3 py-4 rounded-lg border
-                    ${isBestDay
-                      ? "border-emerald-400/40 bg-emerald-400/[0.04]"
-                      : "border-white/10 bg-white/[0.02]"}
+                    border-white/10 bg-white/[0.02]
                     ${isToday ? "ring-1 ring-teal-400/40" : ""}
                   `}
                 >
