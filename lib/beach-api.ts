@@ -158,11 +158,16 @@ function uvRisk(uv: number): string {
   return "Low";
 }
 
-// Geocode beach name via Nominatim
+// Geocode beach name via Nominatim. Force English results — Nominatim defaults to
+// the requester's browser language via accept-language, which on a Chinese-locale
+// phone returns Chinese place names. Override with accept-language: en.
 async function geocode(beachName: string): Promise<{ lat: number; lon: number; displayName: string } | null> {
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(beachName)}&format=json&limit=1`;
   const res = await fetch(url, {
-    headers: { "User-Agent": "BeachSafetyWeb/1.0" },
+    headers: {
+      "User-Agent": "BeachSafetyWeb/1.0",
+      "accept-language": "en",
+    },
   });
   if (!res.ok) return null;
   const data = await res.json();
