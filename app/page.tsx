@@ -224,7 +224,7 @@ function HeroImage() {
   return (
     <div className="absolute inset-0">
       <img
-        src="/hero-wave.jpg"
+        src="/hero-hi-ce41e969.jpg"
         alt=""
         className="w-full h-full object-cover object-[center_30%] wave-pulse"
       />
