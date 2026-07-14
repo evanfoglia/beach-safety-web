@@ -38,8 +38,10 @@ export default function Page() {
   const [source, setSource] = useState<"mcp" | "js" | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [now, setNow] = useState<Date | null>(null);
-  const [beachImage, setBeachImage] = useState<{ url: string; cached: boolean } | null>(null);
-  const [beachImageLoading, setBeachImageLoading] = useState(false);
+  // Beach image gen deferred (cost / hosting concerns). lib/image-gen.ts is dormant;
+  // re-enable by restoring the useEffect + BeachImageCard mount in the JSX below.
+  // const [beachImage, setBeachImage] = useState<{ url: string; cached: boolean } | null>(null);
+  // const [beachImageLoading, setBeachImageLoading] = useState(false);
 
   useEffect(() => {
     setNow(new Date());
@@ -54,7 +56,6 @@ export default function Page() {
     setError(null);
     setBeachData(null);
     setSource(null);
-    setBeachImage(null);
     try {
       const res = await fetch(`/api/beach?beach=${encodeURIComponent(beachName)}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -69,29 +70,11 @@ export default function Page() {
     }
   }, []);
 
-  // After beach data loads, fetch a beach-specific AI image. Runs in background so
-  // the data card shows immediately. Image takes ~10s on first call, instant on cache hit.
-  useEffect(() => {
-    if (!beachData) return;
-    const name = beachData.beach_name;
-    const lat = beachData.latitude;
-    const lon = beachData.longitude;
-    const controller = new AbortController();
-    setBeachImageLoading(true);
-    fetch(
-      `/api/image-gen?beach=${encodeURIComponent(name)}&lat=${lat}&lon=${lon}`,
-      { signal: controller.signal }
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        if (j?.url) setBeachImage({ url: j.url, cached: !!j.cached });
-      })
-      .catch((e) => {
-        if (e?.name !== "AbortError") console.warn("[image-gen]", e);
-      })
-      .finally(() => setBeachImageLoading(false));
-    return () => controller.abort();
-  }, [beachData?.beach_name, beachData?.latitude, beachData?.longitude]);
+  // Image gen deferred — see commented-out state above. To re-enable:
+  //  1. Uncomment beachImage/beachImageLoading state
+  //  2. Restore the useEffect that calls /api/image-gen
+  //  3. Re-add <BeachImageCard /> below the search bar
+  // useEffect(() => { ... }, [beachData]);
 
   const isFavorite = beachData ? favorites.includes(beachData.beach_name) : false;
   const rating = useMemo(() => conditionRating(beachData?.safety_score), [beachData]);
@@ -164,14 +147,6 @@ export default function Page() {
                 <span className="opacity-60">error:</span> {error}
               </p>
             )}
-
-            {/* Beach-specific AI image — appears under search, only after data loads */}
-            <BeachImageCard
-              imageUrl={beachImage?.url ?? null}
-              loading={beachImageLoading}
-              beachName={beachData?.beach_name ?? null}
-              cached={beachImage?.cached ?? false}
-            />
           </div>
         </section>
       </main>
@@ -370,64 +345,50 @@ function SearchBar({
     </div>
   );
 }
-function BeachImageCard({
-  imageUrl,
-  loading,
-  beachName,
-  cached,
-}: {
-  imageUrl: string | null;
-  loading: boolean;
-  beachName: string | null;
-  cached: boolean;
-}) {
-  // Don't render anything until a beach has been loaded
-  if (!beachName) return null;
-
-  return (
-    <div className="pt-2 animate-[fadeIn_400ms_ease-out]">
-      <div className="flex items-center gap-3 mb-3">
-        <span className="text-xs font-mono uppercase tracking-[0.3em] text-teal-300 font-semibold">
-          Now Playing
-        </span>
-        {cached && (
-          <span className="text-[10px] font-mono uppercase tracking-widest text-slate-300/70 border border-white/10 rounded px-1.5 py-0.5">
-            cached
-          </span>
-        )}
-      </div>
-
-      <div className="relative w-full md:max-w-2xl aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900/60">
-        {loading && !imageUrl && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-300 wave-pulse">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" className="w-10 h-10 opacity-70">
-              <path d="M2 14c2-1 3-2 5 0s3 2 5 0 3-2 5 0 3 2 5 0" strokeLinecap="round" />
-              <path d="M2 19c2-1 3-2 5 0s3 2 5 0 3-2 5 0 3 2 5 0" strokeLinecap="round" opacity="0.5" />
-            </svg>
-            <p className="text-xs font-mono uppercase tracking-[0.3em]">
-              Generating scene…
-            </p>
-          </div>
-        )}
-        {imageUrl && (
-          <img
-            src={imageUrl}
-            alt={`${beachName} surf scene`}
-            className="w-full h-full object-cover animate-[fadeIn_500ms_ease-out]"
-          />
-        )}
-        {/* Bottom-left caption overlay */}
-        {imageUrl && (
-          <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-            <p className="text-xs font-mono uppercase tracking-[0.3em] text-teal-300 font-semibold">
-              {beachName.split(",")[0]}
-            </p>
-            <p className="text-[10px] font-mono text-slate-300/70 mt-1">
-              AI-generated scene · minimax image-01
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+// === BeachImageCard — DORMANT ===
+// Image gen deferred (cost / hosting concerns). Component kept here so the
+// re-enable is mechanical: uncomment state in Page, restore the useEffect,
+// drop <BeachImageCard /> back into the JSX.
+//
+// function BeachImageCard({
+//   imageUrl,
+//   loading,
+//   beachName,
+//   cached,
+// }: {
+//   imageUrl: string | null;
+//   loading: boolean;
+//   beachName: string | null;
+//   cached: boolean;
+// }) {
+//   if (!beachName) return null;
+//   return (
+//     <div className="pt-2 animate-[fadeIn_400ms_ease-out]">
+//       <div className="flex items-center gap-3 mb-3">
+//         <span className="text-xs font-mono uppercase tracking-[0.3em] text-teal-300 font-semibold">
+//           Now Playing
+//         </span>
+//         {cached && (
+//           <span className="text-[10px] font-mono uppercase tracking-widest text-slate-300/70 border border-white/10 rounded px-1.5 py-0.5">
+//             cached
+//           </span>
+//         )}
+//       </div>
+//       <div className="relative w-full md:max-w-2xl aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900/60">
+//         {loading && !imageUrl && (
+//           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-300 wave-pulse">
+//             <p className="text-xs font-mono uppercase tracking-[0.3em]">Generating scene…</p>
+//           </div>
+//         )}
+//         {imageUrl && <img src={imageUrl} alt={`${beachName} surf scene`} className="w-full h-full object-cover" />}
+//         {imageUrl && (
+//           <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+//             <p className="text-xs font-mono uppercase tracking-[0.3em] text-teal-300 font-semibold">
+//               {beachName.split(",")[0]}
+//             </p>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
