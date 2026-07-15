@@ -77,10 +77,8 @@ export default function Page() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [savedDrawerOpen, setSavedDrawerOpen] = useState(false);
   const [now, setNow] = useState<Date | null>(null);
-  // Beach image gen deferred (cost / hosting concerns). lib/image-gen.ts is dormant;
-  // re-enable by restoring the useEffect + BeachImageCard mount in the JSX below.
-  // const [beachImage, setBeachImage] = useState<{ url: string; cached: boolean } | null>(null);
-  // const [beachImageLoading, setBeachImageLoading] = useState(false);
+  const [heroImageUrl, setHeroImageUrl] = useState<string>("/hero-hi-wide.jpg");
+  const FALLBACK_HERO = "/hero-hi-wide.jpg";
 
   const searchBeach = useCallback(async (beachName: string) => {
     setLoading(true);
@@ -146,11 +144,36 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [beachData]);
 
-  // Image gen deferred — see commented-out state above. To re-enable:
-  //  1. Uncomment beachImage/beachImageLoading state
-  //  2. Restore the useEffect that calls /api/image-gen
-  //  3. Re-add <BeachImageCard /> below the search bar
-  // useEffect(() => { ... }, [beachData]);
+  // Resolve a per-beach hero image via /api/image-proxy. Falls back to the
+  // static /hero-hi-wide.jpg whenever Wikimedia returns no match, has no
+  // network, or errors. URL only — image bytes are streamed directly from
+  // upload.wikimedia.org.
+  useEffect(() => {
+    if (!beachData) {
+      setHeroImageUrl(FALLBACK_HERO);
+      return;
+    }
+    let cancelled = false;
+    // Optimistically keep the prior image while the new one fetches. Swap to
+    // fallback only when we have no result yet.
+    (async () => {
+      try {
+        const params = new URLSearchParams({ beach: beachData.beach_name });
+        if (typeof beachData.latitude === "number" && typeof beachData.longitude === "number") {
+          params.set("lat", String(beachData.latitude));
+          params.set("lon", String(beachData.longitude));
+        }
+        const res = await fetch(`/api/image-proxy?${params.toString()}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (cancelled) return;
+        setHeroImageUrl(typeof data?.url === "string" && data.url ? data.url : FALLBACK_HERO);
+      } catch {
+        if (!cancelled) setHeroImageUrl(FALLBACK_HERO);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [beachData]);
 
   const isFavorite = beachData ? favorites.includes(beachData.beach_name) : false;
   const swimRating = useMemo(() => conditionRating(beachData?.safety_score), [beachData]);
@@ -205,7 +228,7 @@ export default function Page() {
       {/* Hero — full-bleed background image */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className="relative h-[78vh] min-h-[520px] md:h-screen md:overflow-hidden shrink-0">
-          <HeroImage />
+          <HeroImage src={heroImageUrl} />
 
         {/* Top bar — wordmark + date + location */}
         <TopBar
@@ -482,11 +505,12 @@ function SidebarIcon({ name }: { name: string }) {
   }
 }
 
-function HeroImage() {
+function HeroImage({ src }: { src: string }) {
   return (
     <div className="absolute inset-0">
       <img
-        src="/hero-hi-wide.jpg"
+        key={src}
+        src={src}
         alt=""
         className="w-full h-full object-cover object-center wave-pulse"
       />
