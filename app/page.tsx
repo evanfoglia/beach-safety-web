@@ -877,7 +877,7 @@ function HourlyTimeline({
                 </span>
 
                 {/* Rating dot */}
-                <div className={`w-2 h-2 rounded-full ${ratingDot[h.surfRating.label]} ${isBest ? "ring-2 ring-emerald-300/40 ring-offset-1 ring-offset-slate-950" : ""}`} />
+                <div className={`mt-1.5 w-2 h-2 rounded-full ${ratingDot[h.surfRating.label]} ${isBest ? "ring-2 ring-emerald-300/40 ring-offset-1 ring-offset-slate-950" : ""}`} />
 
                 {/* Current-hour ring (drawn around the whole cell) */}
                 {isCurrent && (
