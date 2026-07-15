@@ -14,6 +14,7 @@ const MAX_BEACH_LEN = 200;
 export async function GET(request: NextRequest) {
   const ip = getClientIp(request);
   const retryAfterMs = checkRateLimit(ip);
+  console.log(`[beach-api] ${ip} ${request.method} ${request.url}`);
   if (retryAfterMs !== null) {
     const retryAfterSec = Math.ceil(retryAfterMs / 1000);
     return NextResponse.json(
